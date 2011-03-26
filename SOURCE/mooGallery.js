@@ -44,7 +44,7 @@ var mooGallery = new Class({
 				gallery.set('html', '');
 
 				//instead of 9 a variable for the total number of images in the gallery
-				for (i = 0; i < 9) {
+				for (i = 0; i < 9; i++) {
 					try {
 						if (resObj.Image[i] === undefined) {
 							throw false;
