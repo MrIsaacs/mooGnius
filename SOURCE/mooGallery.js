@@ -7,7 +7,8 @@ var mooGallery = new Class({
 		gallery : $('mooGallery'),
 		galleryPage : 1,
 		pageNavigation : false,	//Element or ID
-		navigationStyle : false //'dots' / 'numbers' / 'image-url' : 'URL'
+		navigationStyle : false //'dots' / 'numbers' / 'image-url' : 'URL' / 'arrows' (left/right)
+		//galleryLength is defined after request
 	},
 
 	initialize : function (options) {
@@ -18,13 +19,23 @@ var mooGallery = new Class({
 			url : that.options.requestLocation,
 
 			//show preloader onRequest and slide the active gallery out
+			//
+			//onRequest : function (...) show preloader
+			//
+
 			onComplete : function (resObj) {
 
+				//draw pageNavigation if it is true
 				if (that.options.pageNavigation) {
+					//sets the actual
 					that.options.galleryLength = resObj.GalleryLength;
 
+					//clears the Navigation Element
 					that.options.pageNavigation.set('html','');
 
+					//draw pagelinks till gallerylength
+					//must rethink e.g. for numbers type:
+					//pagelinks from -> till (0 ... 5 or 2 ... 7)
 					for (i = 0; i < that.options.galleryLength; i++) {
 						var pageLink = new Element('a', {
 							href : '#'
@@ -32,6 +43,8 @@ var mooGallery = new Class({
 						});
 						var pageList = new Element('li', {'class' : 'noactive'});
 
+						//print the actual pageLink as an active Link
+						//which view is defined in the css-File
 						that.options.pageNavigation.grab(pageList);
 						if (i == galleryPage - 1) {
 							pageList.removeClass('noactive');
@@ -40,14 +53,21 @@ var mooGallery = new Class({
 						pageList.grab(pageLink);
 					}
 
+					//adds the click-Event to the pageNavigation links
 					$$('noactive').addEvent('click', addPageNavigation(that.getChildren()));
 				}
 
+				//clears the Gallery Element
 				that.options.gallery.set('html', '');
 
+				//draw images in gallery
 				//instead of 9 a variable for the total number of images in the gallery
+				//must be defined in options!!
+				//this code goes into the addImageToGallery-Function
 				for (i = 0; i < 9; i++) {
 					try {
+						//if an item of the responsed object don't exists
+						//show an empty image
 						if (resObj.Image[i] === undefined) {
 							throw false;
 						}
@@ -80,6 +100,9 @@ var mooGallery = new Class({
 		}).post('gallery=' + this.options.galleryPage);
 	},
 
+	//**********************************************************
+	//adds the pagenavigation to its type, defaults to 'dots'
+	//**********************************************************
 	addPageNavigation : function (element) {
 		this.pageNavigation = $(element);
 
@@ -88,6 +111,9 @@ var mooGallery = new Class({
 		}
 	},
 
+	//**********************************************************
+	//if the user wants to change the navigationStyle
+	//**********************************************************
 	changeNavigationStyle : function (navigationType) {
 
 		//pruefen ob navigationstype vom typ string ist!
@@ -100,7 +126,10 @@ var mooGallery = new Class({
 		//Image-URL
 	},
 
+	//**********************************************************
+	//*1 try-catch block of the responsed object
+	//**********************************************************
 	addImageToGallery : function () {
-		//try-catch block of the responsed object
+		//some code
 	}.protect()
 });
