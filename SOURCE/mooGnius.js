@@ -1,18 +1,20 @@
-var mooGallery = new Class({
+var mooGnius = new Class({
 
 	Implements : Options,
 
 	options : {
 		requestLocation : './../gallery.php',
-		gallery : $('mooGallery'),
-		galleryPage : 1,
-		pageNavigation : false,	//Element or ID
-		navigationStyle : false //'dots' / 'numbers' / 'image-url' : 'URL' / 'arrows' (left/right)
+		gniusDependentElement : $('gniusDependentElement'),
+		gniusPage : 1,
+		//pageNavigation : false,	//Element or ID
+		//navigationStyle : false //'dots' / 'numbers' / 'image-url' : 'URL' / 'arrows' (left/right)
 		//galleryLength is defined after request
 	},
 
-	initialize : function (options) {
+	initialize : function (gde, options) {
 		that = this;
+
+		this.gniusDependentElement = gde;
 		this.setOptions(options);
 
 		this.reqObj = new Request.JSON({
@@ -25,10 +27,14 @@ var mooGallery = new Class({
 
 			onComplete : function (resObj) {
 
+				//fetch gniusTypeObject and gdeLength
+				//set pageNavigation if gdeLenght is greater than 1
+				//otherwise pageNavigation is undefined and set
+				//pageNavigationStyle in addPageNavigation()
+				that.options.gniusTypeObject = resObj.gniusTypeObject;
+
 				//draw pageNavigation if it is true
 				if (that.options.pageNavigation) {
-					//sets the actual
-					that.options.galleryLength = resObj.GalleryLength;
 
 					//clears the Navigation Element
 					that.options.pageNavigation.set('html','');
@@ -36,7 +42,7 @@ var mooGallery = new Class({
 					//draw pagelinks till gallerylength
 					//must rethink e.g. for numbers type:
 					//pagelinks from -> till (0 ... 5 or 2 ... 7)
-					for (i = 0; i < that.options.galleryLength; i++) {
+					for (i = 0; i < that.options.gniusDependentElementLength; i++) {
 						var pageLink = new Element('a', {
 							href : '#'
 							//pageNavigationClick needs to be added
@@ -46,7 +52,7 @@ var mooGallery = new Class({
 						//print the actual pageLink as an active Link
 						//which view is defined in the css-File
 						that.options.pageNavigation.grab(pageList);
-						if (i == galleryPage - 1) {
+						if (i == gniusPage - 1) {
 							pageList.removeClass('noactive');
 							pageList.addClass('active');
 						}
@@ -57,18 +63,19 @@ var mooGallery = new Class({
 					$$('noactive').addEvent('click', addPageNavigation(that.getChildren()));
 				}
 
-				//clears the Gallery Element
-				that.options.gallery.set('html', '');
+				//clears the gniusDependentElement
+				//can add some transition to clear out the element
+				that.options.gniusDependentElement.set('html', '');
 
-				//draw images in gallery
-				//instead of 9 a variable for the total number of images in the gallery
+				//draw items in gniusDependentElement
+				//instead of 9 a variable for the total number of items in the gniusDependentElements
 				//must be defined in options!!
-				//this code goes into the addImageToGallery-Function
+				//this code goes into the addGtoToGde-Function
 				for (i = 0; i < 9; i++) {
 					try {
 						//if an item of the responsed object don't exists
-						//show an empty image
-						if (resObj.Image[i] === undefined) {
+						//show an empty item
+						if (resObj.Item[i] === undefined) {
 							throw false;
 						}
 						else {
@@ -77,27 +84,27 @@ var mooGallery = new Class({
 					}
 					catch (e) {
 						if (e) {
-							var galleryList = new Element('li');		//<< define as property
-							//var galleryImages = new Element('a', {
+							var gniusDependentElementList = new Element('li');		//<< define as property
+							//var gniusDependentItems = new Element('a', {
 								
 							//});
-							
-							galleryList.inject(that.options.gallery);
-							galleryList.set('html', '<a href=#>\n<img id=image' + i + ' src="' + resObj.Image[i].hyperlink + '"/>\n</a>\n<span class="galleryInfo"><strong>' + resObj.Image[i].artist + '</strong> - ' + resObj.Image[i].title + '</span>');
+
+							gniusDependentElementList.inject(that.options.gniusDependentElement);
+							gniusDependentElementList.set('html', '<a href=#>\n<img id=Item' + i + ' src="' + resObj.Item[i].hyperlink + '"/>\n</a>\n<span class="galleryInfo"><strong>' + resObj.Item[i].artist + '</strong> - ' + resObj.Item[i].title + '</span>');
 						}
 						else {
-							var galleryList = new Element('li');		//<<define as property
+							var gniusDependentElementList = new Element('li');		//<<define as property
 
-							galleryList.inject(that.options.gallery);
-							galleryList.set('html', '<img id=image' + i + ' src="http://crude.whatsmusic.net/images/emptyImage.png"/>');
-							this.addImageToGallery();
+							gniusDependentElementList.inject(that.options.gniusDependentElement);
+							gniusDependentElementList.set('html', '<img id=Item' + i + ' src="http://crude.whatsmusic.net/Items/emptyItem.png"/>');
+							this.addGtoToGde();
 						}
 					}
 				}
 
-				//turn off the preloader and slide the nonactive gallery in
+				//turn off the preloader and slide the nonactive gniusDependentElement in
 			}
-		}).post('gallery=' + this.options.galleryPage);
+		}).post('gde_id=' + this.options.gniusDependentElement + '&page=' + this.options.gniusPage);
 	},
 
 	//**********************************************************
@@ -123,13 +130,14 @@ var mooGallery = new Class({
 		else if (navigationType == 'numbers') {
 			//add a numberlist
 		}
-		//Image-URL
+		//Item-URL
 	},
 
 	//**********************************************************
-	//*1 try-catch block of the responsed object
+	// *1 try-catch block of the responsed object
+	// parameters: argumentlist of gniusTypeObjects
 	//**********************************************************
-	addImageToGallery : function () {
-		//some code
+	addGtoToGde : function () {
+		//draw gniusTypeObjects to gniusDependentElements
 	}.protect()
 });
